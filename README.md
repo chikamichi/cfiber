@@ -2,16 +2,16 @@ CFiber is [Fibers](http://rubydoc.info/stdlib/core/1.9.2/Fiber) implemented usin
 
 Experimental! It is based on [tmm1's work](https://gist.github.com/48802).
 
-# Usage
+## Usage
 
 Run `ruby spec/cfiber_spec.rb`. Run and **read** `ruby examples/use_cases.rb`. Then play with `Fiber`.
 
-# TODO
+## TODO
 
 * coroutines using #transfer do not work atm.
 * #alive? implementation is challenging
 
-# Interesting readings
+## Interesting readings
 
 * http://rubydoc.info/stdlib/core/1.9.2/Fiber
 * http://rubydoc.info/stdlib/core/1.9.2/Continuation
