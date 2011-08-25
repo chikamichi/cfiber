@@ -3,11 +3,12 @@
 class FiberError < StandardError; end
 class Fiber
   require 'continuation'
+  require './lib/cfiber/debug'
 
   attr_reader :alive
 
   # Like an implicit Fiber.yield, the first one: it acts the same as
-  # Fiber.yield but the block call!
+  # Fiber.yield but for the &block call!
   #
   def initialize(&block)
     @alive = true
@@ -15,7 +16,7 @@ class Fiber
       @args = Fiber.current.instance_exec(@args, &block)
       @resume.call
     end
-    puts "initial state for #{self}: #{@yield}"
+    self.class.log.debug "initial state for #{self}: #{@yield}"
   end
 
   def self.current
@@ -47,7 +48,7 @@ class Fiber
                   # very block; whereas subsequent #resume calls will resume
                   # the block's execution from the last Fiber.yield point.
     else
-      puts "outputing inside #resume for #{self}"
+      log.debug "outputing inside #resume for #{self}"
       @args
     end
   rescue NoMethodError => e # undefined method call for nil:NilClass, that is
@@ -65,7 +66,7 @@ class Fiber
       @args = args.size > 1 ? args : args.first
       @resume.call
     else
-      puts "outputing inside #yield for #{self}"
+      log.debug "outputing inside #yield for #{self}"
       @args
     end
   end
@@ -101,8 +102,8 @@ class Fiber
     if Fiber.current.nil?
       self.resume(*args)
     else
-      puts
-      puts "pausing current fiber #{Fiber.current}, resuming to #{self}"
+      log.debug ""
+      log.debug "pausing current fiber #{Fiber.current}, resuming to #{self}"
       #self.resume(Fiber.yield(*args))
       Fiber.yield(self.resume(*args))
     end

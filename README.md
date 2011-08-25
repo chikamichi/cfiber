@@ -2,9 +2,21 @@ CFiber is [Fibers](http://rubydoc.info/stdlib/core/1.9.2/Fiber) implemented usin
 
 Experimental! It is based on [tmm1's work](https://gist.github.com/48802).
 
+## Installation
+
+Not available as a gem yet. You should clone this repository.
+
+You may build and install a local gem running `gem build cfiber.gemspec && gem install cfiber*.gem` though.
+
 ## Usage
 
 Run `ruby spec/cfiber_spec.rb`. Run and **read** `ruby examples/use_cases.rb`. Then play with `Fiber`.
+
+In a Ruby console, `require ./lib/cfiber.rb` (when inside cfiber's root directory) or `require 'cfiber'` (if you built and installed a local gem).
+
+By installing the [Logg](http://github.com/chikamichi/logg) gem, you'll gain DEBUG output. Disable by setting `CFIBER_DEBUG` to 0:
+
+    CFIBER_DEBUG=0 ruby examples/use_cases.rb
 
 ## TODO
 

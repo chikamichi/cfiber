@@ -7,4 +7,5 @@ Gem::Specification.new do |s|
   s.description = "Continuations used to implement Fibers as provided by Ruby 1.9. Works in 1.8 as well."
   s.files = Dir["lib/**/*"] + ["MIT-LICENSE", "README.md", "CHANGELOG.md"]
   s.version = '0.0.1'
+  s.add_development_dependency 'logg'
 end
