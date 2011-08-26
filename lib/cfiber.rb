@@ -3,7 +3,6 @@
 class FiberError < StandardError; end
 class Fiber
   require 'continuation'
-  require './lib/ext/null_object'
   require './lib/cfiber/debug'
 
   attr_reader :alive
