@@ -4,7 +4,7 @@ Experimental! It is based on [tmm1's work](https://gist.github.com/48802).
 
 # Synopsis
 
-Continuations in Ruby are like time-machine engineers. They let you take snapshots of your runtime environment, and jump (back) to a particular "save point" at any time. Fibers are a way to pause and resume an execution frame by hand. It is all about jumping back and forth between two states, so with some smart design, continuations should let us achieve this pattern. The project is an attempt at implementing the Ruby 1.9 Fiber API using only continuations, which API is made of only two methods:
+Continuations in Ruby are like time-machine engineers. They let you take snapshots of your runtime environment, and jump (back) to a particular "save point" at any time. Fibers are a way to pause and resume an execution frame by hand. It is all about jumping back and forth between two states, so with some smart design, continuations should let us achieve the Fiber pattern! The project is an attempt at implementing the Ruby 1.9 Fiber API using only continuations, which API is made of only two methods:
 
 * `callcc`, which stands for *Call With Current Continuation*; it allows for capturing the runtime state and associate a pending block to it;
 * `call`, which have us jump back in time and perform the block in the context of the current runtime, where "current" really means "the captured state".
