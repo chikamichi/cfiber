@@ -4,10 +4,14 @@ Experimental! It is based on [tmm1's work](https://gist.github.com/48802).
 
 # Synopsis
 
-Continuations in Ruby are like time-machine engineers. They let you take snapshots of your runtime environment, and jump (back) to a particular "save point" at any time. Fibers are a way to pause and resume an execution frame by hand. It is all about jumping back and forth between two states, so with some smart design, continuations should let us achieve the Fiber pattern! The project is an attempt at implementing the Ruby 1.9 Fiber API using only continuations, which API is made of only two methods:
+Continuations in Ruby are like time-machine engineers. They let you take snapshots of your runtime environment, and jump (back) to a particular "save point" at any time. Continuation objects, which you may store, are like an object representing a frozen point in time where one may jump back and start a new life. Fibers are a way to pause and resume an execution frame by hand, scheduling its execution within the wrapping thread (which may be another Fiber!).
 
-* `callcc`, which stands for *Call With Current Continuation*; it allows for capturing the runtime state and associate a pending block to it;
-* `call`, which have us jump back in time and perform the block in the context of the current runtime, where "current" really means "the captured state".
+All in all, it is all about jumping back and forth between several states, so with some smart design, continuations should let us achieve the Fiber pattern! This project is an attempt at implementing the Ruby 1.9 Fiber API using only continuations. The Continuation API is made of only two methods:
+
+* `#callcc`, which stands for *Call With Current Continuation*; it allows for capturing the runtime state and associate a pending block to it. The "current continuation" is a way to talk about the "remaining/pending code left to run" at the time the continuation is captured. In a way, capturing a new continuation sets a checkpoint which allows you to jump back to a particular state, so you effectively gain access to "the remaining code at this time" for you now have a way to jump back in the past to reach what was the current state (that's for the "past/current" confusion);
+* `#call`, which have us jump back in time and trigger the block in the context of the current runtime, where "current" really means "the captured state" (again).
+
+Those are the basis for CFiber. See the *Interesting readings* section for more information.
 
 ## Installation
 
