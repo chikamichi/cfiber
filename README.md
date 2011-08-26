@@ -27,8 +27,8 @@ By installing the [Logg](http://github.com/chikamichi/logg) gem, you'll gain DEB
 
 ## TODO
 
-* coroutines using #transfer do not work atm.
-* #alive? implementation is challenging
+* coroutines using `#transfer` do not work atm.
+* `#alive?` implementation is challenging
 
 ## Interesting readings
 
