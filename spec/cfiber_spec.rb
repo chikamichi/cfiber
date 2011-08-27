@@ -1,6 +1,8 @@
 require 'minitest/autorun'
 require File.expand_path("../../lib/cfiber.rb",  __FILE__)
 
+CFIBER_DEBUG = 0
+
 class TestFiberInstance < MiniTest::Unit::TestCase
   def setup
     @fiber = Fiber.new do |first_resume|
@@ -54,10 +56,23 @@ class TestFiberInstance < MiniTest::Unit::TestCase
   #end
 
   def test_should_be_able_to_transfer_control
-    @fiber2 = Fiber.new do
-      Fiber.yield(1)
-      @fiber.transfer(2)
+    f = g = nil
+
+    f = Fiber.new do |x|     # capture @yield for f
+      puts "F1: #{x}"        #
+      x = g.transfer(x+1)    # should f.yield and g.resume
+      puts "F2: #{x}"        #
+      x = g.transfer(x+1)    # should f.yield and g.resume
+      puts "F3: #{x}"
     end
-    @fiber2.resume(:start)
+
+    g = Fiber.new do |x|     # capture @yield for g
+      puts "G1: #{x}"
+      x = f.transfer(x+1)    # should g.yield and f.resume
+      puts "G2: #{x}"
+      x = f.transfer(x+1)    # should g.yield and f.resume
+    end
+
+    f.transfer(100)          # resume f, do not know about g yet
   end
 end

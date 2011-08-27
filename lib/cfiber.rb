@@ -71,6 +71,9 @@ class Fiber
       log.debug "outputing inside #yield for #{self}"
       @args
     end
+  rescue NoMethodError => e # undefined method call for nil:NilClass, that is
+    @alive = false
+    raise FiberError, "dead fiber #{Fiber.current} called"
   end
 
   def transfer_yield(*args)
@@ -129,19 +132,28 @@ class Fiber
   #
   def transfer(*args)
     if Fiber.current.nil?
+      log.debug ""
+      log.debug "cas 1"
       Thread.current[:__cfiber_transfer] = nil
-      return self.resume(*args)
+      self.resume(*args)
+
     elsif Thread.current[:__cfiber_transfer].nil?
       log.debug ""
+      log.debug "cas 2"
       log.debug "resuming #{self}"
       Thread.current[:__cfiber_transfer] = Fiber.current
       self.resume(*args)
+
     elsif Thread.current[:__cfiber_transfer].is_a?(Fiber)
       log.debug ""
+      log.debug "cas 3"
       log.debug "pausing #{Fiber.current}"
       Thread.current[:__cfiber_transfer] = nil
       Fiber.yield(*args)
+      #Fiber.yield(self.resume(*args)) # TODO: handle multiple coroutines
     else
+      log.debug ""
+      log.debug "cas 4"
       raise FiberError, "transfer mismatch"
     end
   end

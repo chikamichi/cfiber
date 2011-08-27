@@ -83,47 +83,28 @@ register_example "Canonical example #2 for 1.9 Fibers" do
   puts fiber.resume 18 # will raise FiberError (hopefully)
 end
 
-register_example "Coroutines" do
+register_example "Coroutines I: symetric" do
   f = g = nil
 
-  f = Fiber.new do |x|     # capture @yield for f
-    puts "F1: #{x}"        #
-    x = g.transfer(x+1)    # should f.yield and g.resume
-    puts "F2: #{x}"        #
-    x = g.transfer(x+1)    # should f.yield and g.resume
+  f = Fiber.new do |x|
+    puts "F1: #{x}"
+    x = g.transfer(x+1)
+    puts "F2: #{x}"
+    x = g.transfer(x+1)
     puts "F3: #{x}"
   end
 
-  g = Fiber.new do |x|     # capture @yield for g
+  g = Fiber.new do |x|
     puts "G1: #{x}"
-    x = f.transfer(x+1)    # should g.yield and f.resume
+    x = f.transfer(x+1)
     puts "G2: #{x}"
-    x = f.transfer(x+1)    # should g.yield and f.resume
+    x = f.transfer(x+1)
   end
 
-  f.transfer(100)          # resume f, do not know about g yet
+  f.transfer(100)
 end
 
-register_example "Coroutines II" do
-  n = 37
-  machines = []
-  5.times do |i|
-    machines[i] = Fiber.new do
-      j = 5
-      while n > 1 && j > 0 do
-        puts n
-        n -= 1
-        j -= 1
-      end
-      machines[(i+1)%5].transfer if n > 1
-      puts "done"
-    end
-  end
-
-  machines.first.transfer
-end
-
-register_example "Coroutines III" do
+register_example "Coroutines II: symetric, explicit scheduling" do
   # this works!
   g = Fiber.new { |x|
     puts "G1: #{x}"
@@ -141,4 +122,35 @@ register_example "Coroutines III" do
   }
 
   f.resume(100)
+end
+
+register_example "Coroutines III: multiple coroutines" do
+  # Here, one cannot use transfer: the next fiber must be
+  # resumed by hand because the current implementation
+  # handles only symetric (pair) coroutines.
+  n = 25
+  machines = []
+
+  5.times do |i|
+    machines[i] = Fiber.new do
+      j = 5
+
+      while n > 0 && j > 0 do
+        puts n
+        n -= 1
+        j -= 1
+      end
+
+      puts "+++"
+      puts n,j
+      puts "+++"
+      next_machine = (i+1)%5
+      puts "transfering to machine #{next_machine} (#{n})" if n > 0
+      Fiber.yield(machines[next_machine].resume) if n > 0
+
+      puts "All done."
+    end
+  end
+
+  machines.first.resume
 end
