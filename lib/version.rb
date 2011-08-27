@@ -1,4 +1,4 @@
-module Jumoku
+module CFiber
   MAJOR = 0
   MINOR = 0
   PATCH = 1
