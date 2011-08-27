@@ -6,6 +6,7 @@ class Fiber
   require './lib/cfiber/debug'
 
   attr_reader :alive
+  attr_accessor :state
 
   # Like an implicit Fiber.yield, the first one: it acts the same as
   # Fiber.yield but for the &block call!
@@ -42,6 +43,7 @@ class Fiber
   def resume(*args)
     if @resume = callcc { |cc| cc }
       Fiber.current = self
+      Fiber.current.state = :awake
       @args = args.size > 1 ? args : args.first
       @yield.call # the first #resume call will trigger the #initialize block
                   # execution, until a call to Fiber.yield is made inside the
@@ -71,6 +73,14 @@ class Fiber
     end
   end
 
+  def transfer_yield(*args)
+    self.state = :paused
+    unless @yield = callcc { |cc| cc }
+      puts "yielding #{self}"
+      @resume.call
+    end
+  end
+
   # Useful to implement coroutines.
   #
   # @example
@@ -93,6 +103,25 @@ class Fiber
   #
   #   f.transfer(100)
   #
+  #   -----------------
+  #
+  #   g = Fiber.new { |x|
+  #     puts "G1: #{x}"
+  #     x = Fiber.yield(x+1) # f.transfer => Thread.current[:__cfiber_transfer] != nil => Thread.current[:__cfiber_transfer] = nil && Fiber.yield
+  #     puts "G2: #{x}"
+  #     x = Fiber.yield(x+1)
+  #   }
+  #
+  #   f = Fiber.new { |x|
+  #     puts "F1: #{x}"
+  #     x = g.resume(x+1) # g.transfer => Thread.current[:__cfiber_transfer] = Fiber.current && g.resume
+  #     puts "F2: #{x}"
+  #     x = g.resume(x+1) # pareil
+  #     puts "F3: #{x}"
+  #   }
+  #
+  #   f.resume(100) # f.transfer => Fiber.current == nil => f.resume
+  #
   # FIXME: the tricky part is init. In the example above, f.transfer(100)
   # triggers f.resume(100), which in turns reach g.transfer(101). This
   # triggers g.yield(f.resume(101)) but this is wrong. One must atomically
@@ -100,12 +129,20 @@ class Fiber
   #
   def transfer(*args)
     if Fiber.current.nil?
-      self.resume(*args)
-    else
+      Thread.current[:__cfiber_transfer] = nil
+      return self.resume(*args)
+    elsif Thread.current[:__cfiber_transfer].nil?
       log.debug ""
-      log.debug "pausing current fiber #{Fiber.current}, resuming to #{self}"
-      #self.resume(Fiber.yield(*args))
-      Fiber.yield(self.resume(*args))
+      log.debug "resuming #{self}"
+      Thread.current[:__cfiber_transfer] = Fiber.current
+      self.resume(*args)
+    elsif Thread.current[:__cfiber_transfer].is_a?(Fiber)
+      log.debug ""
+      log.debug "pausing #{Fiber.current}"
+      Thread.current[:__cfiber_transfer] = nil
+      Fiber.yield(*args)
+    else
+      raise FiberError, "transfer mismatch"
     end
   end
 

@@ -53,3 +53,4 @@ By installing the [Logg](http://github.com/chikamichi/logg) gem, you'll gain DEB
 * http://masanjin.net/blog/fibers
 * http://www.davidflanagan.com/2007/08/coroutines-via-fibers-in-ruby-19.html
 * http://pragdave.blogs.pragprog.com/pragdave/2007/12/pipelines-using.html
+* http://blog.zacharyvoase.com/2010/01/02/nice-redis-em/
