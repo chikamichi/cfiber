@@ -41,6 +41,8 @@ class Fiber
   # stored within the current thread.
   #
   def resume(*args)
+    # Using callcc as a breakpoint, storing the continuation outside the block
+    # scope. This allows for the lazy-evaluation of an else clause.
     if @resume = callcc { |cc| cc }
       Fiber.current = self
       Fiber.current.state = :awake
