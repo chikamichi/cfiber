@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require File.expand_path("../../lib/cfiber.rb",  __FILE__)
 
-CFIBER_DEBUG = 0
+$DEBUG = false
 
 class TestFiberInstance < MiniTest::Unit::TestCase
   def setup
