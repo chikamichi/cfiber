@@ -1,3 +1,5 @@
+require './lib/cfiber/version'
+
 Gem::Specification.new do |s|
   s.name = "cfiber"
   s.author = "Jean-Denis Vauguet <jd@vauguet.fr>"
